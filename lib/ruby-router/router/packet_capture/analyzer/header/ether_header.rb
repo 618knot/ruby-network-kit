@@ -4,21 +4,17 @@
 #       ref: https://en.wikipedia.org/wiki/Ethernet_frame
 #       ref: https://shinmeisha.co.jp/newsroom/2020/06/09/%E3%82%A4%E3%83%BC%E3%82%B5%E3%83%8D%E3%83%83%E3%83%88%E3%83%98%E3%83%83%E3%83%80%E3%81%AE%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%83%E3%83%88%E3%81%A8%E3%82%B5%E3%82%A4%E3%82%BA%E3%81%AE%E5%9F%BA/
 
-module PacketCapture
-  class EtherHeader
-    # @note net/ethernet.h
-    ETHERTYPE_PUP = 0x0200.freeze # Xerox PUP
-    ETHERTYPE_IP = 0x0800.freeze # IPv4
-    ETHERTYPE_ARP = 0x0806.freeze # Address resolution
-    ETHERTYPE_REVARP = 0x8035.freeze # Reverse ARP
-    ETHERTYPE_IPv6 = 0x86dd.freeze # IPv6
+require_relative "../../../constants"
 
+module PacketCapture
+  include Constants
+  class EtherHeader
     ETHERTYPE = {
-      ETHERTYPE_PUP => "Xerox PUP",
-      ETHERTYPE_IP => "IPv4",
-      ETHERTYPE_ARP => "Address resolution",
-      ETHERTYPE_REVARP => "Reverse ARP",
-      ETHERTYPE_IPv6 => "IPv6",
+      Constants::EtherTypes::PUP => "Xerox PUP",
+      Constants::EtherTypes::IP => "IPv4",
+      Constants::EtherTypes::ARP => "Address resolution",
+      Constants::EtherTypes::REVARP => "Reverse ARP",
+      Constants::EtherTypes::IPv6 => "IPv6",
     }
 
     attr_reader :dst_mac_address, :src_mac_address, :type
