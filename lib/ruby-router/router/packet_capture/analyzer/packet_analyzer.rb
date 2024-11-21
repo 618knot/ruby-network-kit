@@ -16,7 +16,7 @@ class PacketAnalyzer
 
   def to_packet
     ether_header = HeaderAnalyzer::Ether.new(@msg_bytes)
-    ether_header.print_header
+    ether_header.analyze
 
     case ether_header.int_hex_type
     when Constants::EtherTypes::ARP
