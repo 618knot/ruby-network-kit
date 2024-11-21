@@ -4,6 +4,7 @@
 
 require_relative "header_analyzer/ether"
 require_relative "protocol_analyzer/arp"
+require_relative "header_analyzer/ip"
 
 class PacketAnalyzer
 
@@ -21,6 +22,8 @@ class PacketAnalyzer
     case ether_header.int_hex_type
     when Constants::EtherTypes::ARP
       ProtocolAnalyzer::Arp.new(@msg_bytes.slice(14..)).analyze
+    when Constants::EtherTypes::IP
+      HeaderAnalyzer::Ip.new(@msg_bytes.slice(14..)).analyze
     else
       return
     end
