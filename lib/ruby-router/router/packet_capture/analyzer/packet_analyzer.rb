@@ -2,7 +2,7 @@
 
 # @note ref: https://github.com/kuredev/simple_capture/blob/main/lib/simple_capture/recv_message.rb
 
-require_relative "header/ether_header"
+require_relative "header_analyzer/ether"
 require_relative "protocol_analyzer/arp"
 
 class PacketAnalyzer
@@ -15,7 +15,7 @@ class PacketAnalyzer
   end
 
   def to_packet
-    ether_header = EtherHeader.new(@msg_bytes)
+    ether_header = HeaderAnalyzer::Ether.new(@msg_bytes)
     ether_header.print_header
 
     case ether_header.int_hex_type
