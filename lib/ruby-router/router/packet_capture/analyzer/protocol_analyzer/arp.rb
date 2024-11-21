@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
 require_relative "protocol"
-require_relative "../../../constants"
 
 module ProtocolAnalyzer
   class Arp < Protocol
-    include Constants
-
     HRD = [
       "From KA9Q: NET/ROM pseudo.",
       "Ethernet 10/100Mbps.",
