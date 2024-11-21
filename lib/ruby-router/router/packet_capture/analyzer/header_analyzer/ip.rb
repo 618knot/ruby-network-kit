@@ -36,7 +36,7 @@ module HeaderAnalyzer
       @frag_off = self.to_hex_int(@frag_off)
       @protocol = Constants::Ip::PROTO[@protocol]
       @check = self.to_hex_string(@check, is_formated: true)
-      p @msg_bytes
+
       print_ip
     end
 
