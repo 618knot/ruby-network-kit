@@ -21,9 +21,10 @@ class BaseAnalyzer
   #
   # @return [String]
   #
-  def to_hex_string(array)
-    str = "0x"
-    array.map!{ |e| str << e.to_s(16).rjust(2, "0") }
+  def to_hex_string(array, is_formated: false)
+    str = is_formated ? "0x" : ""
+    array.map{ |e| str << e.to_s(16).rjust(2, "0") }
+    str
   end
 
   #
@@ -35,7 +36,7 @@ class BaseAnalyzer
   #
   def to_hex_int(array)
     str = ""
-    array.map!{ |e| str << e.to_s(16).rjust(2, "0") }
+    array.map{ |e| str << e.to_s(16).rjust(2, "0") }
     str.to_i(16)
   end
 
@@ -48,5 +49,14 @@ class BaseAnalyzer
   #
   def macaddr_to_s(mac_addr)
     mac_addr.map { |addr| addr.to_s(16).rjust(2, "0") }.join(":")
+  end
+
+  #
+  # 配列に格納されたメッセージをデバッガに出力する
+  #
+  # @param [Array] msg 出力する文字列を持つ配列
+  #
+  def out_msg_array(msg)
+    msg.map { |m| @logger.debug(m) }
   end
 end

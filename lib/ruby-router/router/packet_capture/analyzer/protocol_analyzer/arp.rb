@@ -96,7 +96,7 @@ module ProtocolAnalyzer
         "Target IP address => #{@arp_tpa}"
       ]
 
-      msg.map { |m| @logger.debug(m) }
+      out_msg_array(msg)
     end
   end
 end
