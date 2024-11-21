@@ -26,6 +26,13 @@ class Protocol
     array.map!{ |e| str << e.to_s(16).rjust(2, "0") }
   end
 
+  #
+  # Int Arrayを16進数値(10進数)に直す
+  #
+  # @param [Array] array
+  #
+  # @return [Integer]
+  #
   def to_hex_int(array)
     str = ""
     array.map!{ |e| str << e.to_s(16).rjust(2, "0") }
