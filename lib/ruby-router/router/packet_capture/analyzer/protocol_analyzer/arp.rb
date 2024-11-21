@@ -68,6 +68,14 @@ module ProtocolAnalyzer
       @arp_tha = @msg_bytes.slice(18..23)  # Target MAC address: 6Byte
       @arp_tpa = @msg_bytes.slice(24..27)  # Target IP address:  4Byte
 
+      @arp_hrd = HRD[self.to_hex_int(@arp_hrd)]
+      @arp_pro = Constants::EtherTypes::STR_HASH[self.to_hex_int(@arp_pro)]
+      @arp_op = OP[self.to_hex_int(@arp_op)]
+      @arp_sha = macaddr_to_s(@arp_sha)
+      @arp_spa = @arp_spa.join(".")
+      @arp_tha = macaddr_to_s(@arp_tha)
+      @arp_tpa = @arp_tpa.join(".")
+
       print_arp
     end
 
@@ -77,15 +85,15 @@ module ProtocolAnalyzer
       @logger.info("■■■■■ ARP ■■■■■")
 
       msg = [
-        "Hardware Type => #{HRD[self.to_hex_int(@arp_hrd)]}",
-        "Protocol Type => #{Constants::EtherTypes::STR_HASH[self.to_hex_int(@arp_pro)]}",
+        "Hardware Type => #{@arp_hrd}",
+        "Protocol Type => #{@arp_pro}",
         "Hardware Size => #{@arp_hln} Byte",
         "Protocol Size => #{@arp_pln} Byte",
-        "Opcode => #{OP[self.to_hex_int(@arp_op)]}",
-        "Sender MAC address => #{macaddr_to_s(@arp_sha)}",
-        "Sender IP address => #{@arp_spa.join(".")}",
-        "Target MAC address => #{macaddr_to_s(@arp_tha)}",
-        "Target IP address => #{@arp_tpa.join(".")}"
+        "Opcode => #{@arp_op}",
+        "Sender MAC address => #{@arp_sha}",
+        "Sender IP address => #{@arp_spa}",
+        "Target MAC address => #{@arp_tha}",
+        "Target IP address => #{@arp_tpa}"
       ]
 
       msg.map { |m| @logger.debug(m) }
