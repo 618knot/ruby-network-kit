@@ -15,4 +15,27 @@ module Constants
       IPv6 => "IPv6",
   }.freeze
   end
+
+  module Ip
+    PROTO = [
+      nil,
+      "ICMP",
+      "IGMP",
+      nil,
+      "IPIP",
+      nil,
+      "TCP",
+      nil,
+      "EGP",
+      nil,
+      nil,
+      nil,
+      "PUP",
+      nil,
+      nil,
+      nil,
+      nil,
+      "UDP"
+  ].freeze
+  end
 end
