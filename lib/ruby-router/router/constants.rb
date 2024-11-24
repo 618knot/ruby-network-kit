@@ -16,6 +16,49 @@ module Constants
   }.freeze
   end
 
+  module Arp
+    HRD = [
+      "From KA9Q: NET/ROM pseudo.",
+      "Ethernet 10/100Mbps.",
+      "Experimental Ethernet.",
+      "AX.25 Level 2.",
+      "PROnet token ring.",
+      "Chaosnet.",
+      "IEEE 802. Ethernet/TR/TB.",
+      "ARCnet.",
+      "APPLEtalk",
+      nil,
+      nil,
+      nil,
+      nil,
+      nil,
+      nil,
+      "Frame Relay DLCI.",
+      nil,
+      nil,
+      nil,
+      "ATM.",
+      nil,
+      nil,
+      nil,
+      "Metricom STRIP (new IANA id)."
+    ].freeze
+
+    OP = [
+      nil,
+      "ARP request.",
+      "ARP reply.",
+      "RARP request.",
+      "RARP reply.",
+      nil,
+      nil,
+      nil,
+      "InARP request.",
+      "InARP reply.",
+      "(ATM)ARP NAK."
+    ].freeze
+  end
+
   module Ip
     PROTO = [
       nil,

@@ -1,50 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "protocol"
-
 module ProtocolAnalyzer
-  class Arp < Protocol
-    HRD = [
-      "From KA9Q: NET/ROM pseudo.",
-      "Ethernet 10/100Mbps.",
-      "Experimental Ethernet.",
-      "AX.25 Level 2.",
-      "PROnet token ring.",
-      "Chaosnet.",
-      "IEEE 802. Ethernet/TR/TB.",
-      "ARCnet.",
-      "APPLEtalk",
-      nil,
-      nil,
-      nil,
-      nil,
-      nil,
-      nil,
-      "Frame Relay DLCI.",
-      nil,
-      nil,
-      nil,
-      "ATM.",
-      nil,
-      nil,
-      nil,
-      "Metricom STRIP (new IANA id)."
-    ].freeze
-
-    OP = [
-      nil,
-      "ARP request.",
-      "ARP reply.",
-      "RARP request.",
-      "RARP reply.",
-      nil,
-      nil,
-      nil,
-      "InARP request.",
-      "InARP reply.",
-      "(ATM)ARP NAK."
-    ].freeze
-
+  class Arp < Header
     attr_reader(
       :arp_hrd,
       :arp_pro,
@@ -68,9 +25,9 @@ module ProtocolAnalyzer
       @arp_tha = @msg_bytes.slice(18..23)  # Target MAC address: 6Byte
       @arp_tpa = @msg_bytes.slice(24..27)  # Target IP address:  4Byte
 
-      @arp_hrd = HRD[self.to_hex_int(@arp_hrd)]
+      @arp_hrd = Constants::Arp::HRD[self.to_hex_int(@arp_hrd)]
       @arp_pro = Constants::EtherTypes::STR_HASH[self.to_hex_int(@arp_pro)]
-      @arp_op = OP[self.to_hex_int(@arp_op)]
+      @arp_op = Constants::Arp::OP[self.to_hex_int(@arp_op)]
       @arp_sha = macaddr_to_s(@arp_sha)
       @arp_spa = @arp_spa.join(".")
       @arp_tha = macaddr_to_s(@arp_tha)
