@@ -21,7 +21,7 @@ module HeaderAnalyzer
       @doff = @msg_bytes.slice(12)[4..7]  # Data Offset:       4bit
       @flags = @msg_bytes.slice(13)[0..5] # Flags:             6bit
       @window = @msg_bytes.slice(14..15)  # Window Size:       2Byte
-      @check = @msg_bytes.slice(16..17)   # Check Sum:         2Byte
+      @check = @msg_bytes.slice(16..17)   # Checksum:         2Byte
       @urg_ptr = @msg_bytes.slice(18..19) # Emergency Pointer: 2Byte
 
       @source = self.to_hex_int(@source)
@@ -56,7 +56,7 @@ module HeaderAnalyzer
         "Data Offset => #{@doff} (#{@doff * 4} Byte)",
         "Flags => #{flags_to_array(@flags).join(", ")}",
         "WIndow Size => #{@window} Byte",
-        "Check Sum => #{@check}",
+        "Checksum => #{@check}",
         "Emergency Pointer => #{@urg_ptr}"
       ]
 

@@ -39,7 +39,7 @@ module HeaderAnalyzer
       msg = [
         "Type => #{@type}",
         "Code => #{@code}",
-        "Check Sum => #{@check}",
+        "Checksum => #{@check}",
         "Identifier => #{@id}",
         "Sequence => #{@seq}"
       ]
