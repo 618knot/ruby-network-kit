@@ -77,7 +77,7 @@ module PacketCapture
       loop do
         # @note https://www.cloudflare.com/ja-jp/learning/network-layer/what-is-mtu/
         msg, _ = socket.recvfrom(1514) # MTU + MAC_ADDRESS * 2 + TYPE = 1514
-        PacketAnalyzer.new(msg).to_packet
+        PacketAnalyzer.new(msg.bytes).analyze
       end
     end
   end

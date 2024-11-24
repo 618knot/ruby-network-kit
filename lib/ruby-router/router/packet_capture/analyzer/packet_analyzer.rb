@@ -6,36 +6,37 @@ require_relative "header_analyzer/ether"
 require_relative "header_analyzer/arp"
 require_relative "header_analyzer/ip"
 require_relative "header_analyzer/icmp"
+require_relative "header_analyzer/tcp"
+require_relative "base_analyzer"
 
-class PacketAnalyzer
-
-  #
-  # @param [String] msg
-  #
-  def initialize(msg)
-    @msg_bytes = msg.bytes
-  end
-
-  def to_packet
-    ether_header = HeaderAnalyzer::Ether.new(@msg_bytes)
+class PacketAnalyzer < BaseAnalyzer
+  def analyze
+    ether_header = HeaderAnalyzer::Ether.new(@msg_bytes.clone)
     ether_header.analyze
+
+    @msg_bytes.slice!(...14)
 
     case ether_header.int_hex_type
     when Constants::EtherTypes::ARP
-      HeaderAnalyzer::Arp.new(@msg_bytes.slice(14..)).analyze
+      HeaderAnalyzer::Arp.new(@msg_bytes.clone).analyze
     when Constants::EtherTypes::IP
-      ip = HeaderAnalyzer::Ip.new(@msg_bytes.slice(14..))
+      ip = HeaderAnalyzer::Ip.new(@msg_bytes.clone)
       ip.analyze
 
-      case ip.protocol
-      when "ICMP"
-        HeaderAnalyzer::Icmp.new(@msg_bytes.slice(21..)).analyze #範囲要修正
-      else
+      @msg_bytes.slice!(...(ip.ihl * 4))
 
+      case ip.protocol        
+      when "ICMP"
+        HeaderAnalyzer::Icmp.new(@msg_bytes.clone).analyze
+      when "TCP"
+        HeaderAnalyzer::Tcp.new(@msg_bytes.clone).analyze
+      else
       end
 
     else
       return
     end
+
+    @logger.debug("--------------------------------------------")
   end
 end
