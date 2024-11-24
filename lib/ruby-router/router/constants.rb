@@ -103,6 +103,17 @@ module Constants
       "Information Reply",
       "Address Mask Request",
       "Address Mask Reply"
-  ].freeze
+    ].freeze
+  end
+
+  module Tcp
+    FLAGS = [
+      "FIN",
+      "SYN",
+      "RST",
+      "PSH",
+      "ACK",
+      "URG"
+    ].freeze
   end
 end
