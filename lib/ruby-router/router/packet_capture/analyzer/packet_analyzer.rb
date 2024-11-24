@@ -5,6 +5,7 @@
 require_relative "header_analyzer/ether"
 require_relative "protocol_analyzer/arp"
 require_relative "header_analyzer/ip"
+require_relative "header_analyzer/icmp"
 
 class PacketAnalyzer
 
@@ -23,7 +24,16 @@ class PacketAnalyzer
     when Constants::EtherTypes::ARP
       ProtocolAnalyzer::Arp.new(@msg_bytes.slice(14..)).analyze
     when Constants::EtherTypes::IP
-      HeaderAnalyzer::Ip.new(@msg_bytes.slice(14..)).analyze
+      ip = HeaderAnalyzer::Ip.new(@msg_bytes.slice(14..))
+      ip.analyze
+
+      case ip.protocol
+      when "ICMP"
+        HeaderAnalyzer::Icmp.new(@msg_bytes.slice(21..)).analyze #範囲要修正
+      else
+
+      end
+
     else
       return
     end
