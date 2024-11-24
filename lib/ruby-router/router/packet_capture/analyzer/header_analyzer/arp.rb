@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ProtocolAnalyzer
+module HeaderAnalyzer
   class Arp < Header
     attr_reader(
       :arp_hrd,
