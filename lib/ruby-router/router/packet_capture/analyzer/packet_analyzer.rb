@@ -3,7 +3,7 @@
 # @note ref: https://github.com/kuredev/simple_capture/blob/main/lib/simple_capture/recv_message.rb
 
 require_relative "header_analyzer/ether"
-require_relative "protocol_analyzer/arp"
+require_relative "header_analyzer/arp"
 require_relative "header_analyzer/ip"
 require_relative "header_analyzer/icmp"
 
@@ -22,7 +22,7 @@ class PacketAnalyzer
 
     case ether_header.int_hex_type
     when Constants::EtherTypes::ARP
-      ProtocolAnalyzer::Arp.new(@msg_bytes.slice(14..)).analyze
+      HeaderAnalyzer::Arp.new(@msg_bytes.slice(14..)).analyze
     when Constants::EtherTypes::IP
       ip = HeaderAnalyzer::Ip.new(@msg_bytes.slice(14..))
       ip.analyze
