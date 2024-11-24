@@ -19,7 +19,7 @@ module HeaderAnalyzer
     private
 
     def print_udp
-      @logger.info("■■■■■ TCP Header ■■■■■")
+      @logger.info("■■■■■ UDP Header ■■■■■")
 
       msg = [
         "Source Port => #{@source}",
