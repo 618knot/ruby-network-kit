@@ -38,4 +38,28 @@ module Constants
       "UDP"
   ].freeze
   end
+
+  module Icmp
+    TYPE = [
+      "Echo Reply",
+      nil,
+      nil,
+      "Destination Unreachable",
+      "Source Quench",
+      "Redirect",
+      nil,
+      nil,
+      "Echo Request",
+      "Router Adverisement",
+      "Router Selection",
+      "Time Exceeded for Datagram",
+      "Parameter Problem for Datagram",
+      "Timestamp Request",
+      "Timestamp Reply",
+      "Information Request",
+      "Information Reply",
+      "Address Mask Request",
+      "Address Mask Reply"
+  ].freeze
+  end
 end
