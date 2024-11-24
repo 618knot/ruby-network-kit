@@ -7,6 +7,7 @@ require_relative "header_analyzer/arp"
 require_relative "header_analyzer/ip"
 require_relative "header_analyzer/icmp"
 require_relative "header_analyzer/tcp"
+require_relative "header_analyzer/udp"
 require_relative "base_analyzer"
 
 class PacketAnalyzer < BaseAnalyzer
@@ -30,6 +31,8 @@ class PacketAnalyzer < BaseAnalyzer
         HeaderAnalyzer::Icmp.new(@msg_bytes.clone).analyze
       when "TCP"
         HeaderAnalyzer::Tcp.new(@msg_bytes.clone).analyze
+      when "UDP"
+        HeaderAnalyzer::Udp.new(@msg_bytes.clone).analyze
       else
       end
 
