@@ -73,7 +73,7 @@ module PacketCapture
     #
     def capture_loop(socket)
       logger = CustomLogger.new
-      logger.info("PacketCapture running")
+      logger.info("PacketCapture is running")
       loop do
         # @note https://www.cloudflare.com/ja-jp/learning/network-layer/what-is-mtu/
         msg, _ = socket.recvfrom(1514) # MTU + MAC_ADDRESS * 2 + TYPE = 1514
