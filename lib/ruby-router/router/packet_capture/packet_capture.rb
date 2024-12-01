@@ -6,7 +6,7 @@ require_relative "../packet_analyzer/packet_analyzer"
 require_relative "../socket_utils"
 
 module PacketCapture
-  class Capture
+  class PacketCapture
     include SocketUtils
 
     #
