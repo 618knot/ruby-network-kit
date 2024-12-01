@@ -2,7 +2,7 @@
 
 # @note ref: https://github.com/kuredev/simple_capture/blob/fe1b043774045d677e7aca3321ceb12a40989558/lib/simple_capture/capture.rb
 
-require_relative "analyzer/packet_analyzer"
+require_relative "../packet_analyzer/packet_analyzer"
 require_relative "../socket_utils"
 
 module PacketCapture

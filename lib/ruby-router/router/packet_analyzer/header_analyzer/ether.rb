@@ -4,7 +4,7 @@
 #       ref: https://en.wikipedia.org/wiki/Ethernet_frame
 #       ref: https://shinmeisha.co.jp/newsroom/2020/06/09/%E3%82%A4%E3%83%BC%E3%82%B5%E3%83%8D%E3%83%83%E3%83%88%E3%83%98%E3%83%83%E3%83%80%E3%81%AE%E3%83%95%E3%82%A9%E3%83%BC%E3%83%9E%E3%83%83%E3%83%88%E3%81%A8%E3%82%B5%E3%82%A4%E3%82%BA%E3%81%AE%E5%9F%BA/
 
-require_relative "../../../constants"
+require_relative "../../constants"
 require_relative "header"
 
 module HeaderAnalyzer

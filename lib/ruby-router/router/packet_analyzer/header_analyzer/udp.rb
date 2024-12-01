@@ -2,6 +2,18 @@
 
 module HeaderAnalyzer
   class Udp < Header
+    attr_reader(
+      :source,
+      :dest,
+      :len,
+      :check
+    )
+
+    def initialize(msg_bytes, ip)
+      super(msg_bytes)
+      @ip = ip
+    end
+
     def analyze
       @source = @msg_bytes.slice(0..1) # Source Port:      2Byte
       @dest = @msg_bytes.slice(2..3)   # Destination Port: 2Byte

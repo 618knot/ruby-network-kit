@@ -59,4 +59,29 @@ class BaseAnalyzer
   def out_msg_array(msg)
     msg.map { |m| @logger.debug(m) }
   end
+
+  #
+  # checksumを計算する
+  #
+  # @param [Array] data header
+  #
+  # @return [Array] bytes
+  #
+  def checksum(data)
+    sum = 0
+
+    data.each_slice(2) do |b|
+      sum += (b.first << 8) + b.last
+    end
+
+    while sum > 0xffff
+      sum = (sum & 0xffff) + (sum >> 16)
+    end
+
+    ~sum & 0xffff
+  end
+
+  def valid_checksum?(c)
+    c == 0 || c == 0xffff
+  end
 end

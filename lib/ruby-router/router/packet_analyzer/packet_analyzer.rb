@@ -30,9 +30,9 @@ class PacketAnalyzer < BaseAnalyzer
       when "ICMP"
         HeaderAnalyzer::Icmp.new(@msg_bytes.clone).analyze
       when "TCP"
-        HeaderAnalyzer::Tcp.new(@msg_bytes.clone).analyze
+        HeaderAnalyzer::Tcp.new(@msg_bytes.clone, ip).analyze
       when "UDP"
-        HeaderAnalyzer::Udp.new(@msg_bytes.clone).analyze
+        HeaderAnalyzer::Udp.new(@msg_bytes.clone, ip).analyze
       else
       end
 

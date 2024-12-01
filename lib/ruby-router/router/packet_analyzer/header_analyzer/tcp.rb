@@ -13,7 +13,14 @@ module HeaderAnalyzer
       :check,
       :urg_ptr
     )
+
+    def initialize(msg_bytes, ip)
+      super(msg_bytes)
+      @ip = ip
+    end
+
     def analyze
+      # p @msg_bytes
       @source = @msg_bytes.slice(0..1)    # Source Port:       2Byte
       @dest = @msg_bytes.slice(2..3)      # Destination Port:  2Byte
       @seq = @msg_bytes.slice(4..7)       # Sequence Number:   4Byte
@@ -31,7 +38,6 @@ module HeaderAnalyzer
       @window = self.to_hex_int(@window)
       @check = self.to_hex_string(@check, is_formated: true)
       @urg_ptr = self.to_hex_int(@urg_ptr)
-
       print_tcp
     end
 
