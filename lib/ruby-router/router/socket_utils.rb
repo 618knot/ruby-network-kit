@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "socket"
+
 module SocketUtils
   ETH_P_ALL = 768.freeze # htons(ETH_P_ALL) netinet/if_ethre.h Every packet
   SIOCGIFINDEX = 0x8933.freeze # bits/ioctls.h
