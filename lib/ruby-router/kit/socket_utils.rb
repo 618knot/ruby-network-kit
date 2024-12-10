@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "socket"
+require_relative "constants"
 
 module SocketUtils
   ETH_P_ALL = 768.freeze # htons(ETH_P_ALL) netinet/if_ethre.h Every packet
@@ -14,7 +15,7 @@ module SocketUtils
   # @return [Socket] socket raw_socket
   #
   def generate_raw_socekt
-    Socket.new(Socket::AF_PACKET, Socket::SOCK_RAW, ETH_P_ALL)
+    Socket.new(Socket::AF_PACKET, Socket::SOCK_RAW, Constants::Io::ETH_P_ALL)
   end
 
   
@@ -28,7 +29,7 @@ module SocketUtils
   #
   def bind_interface(socket, interface)
     interface_idx = interface_idx_str(socket, interface)
-    eth_p_all_hbo = [ ETH_P_ALL ].pack("S").unpack('S>').first # ホストバイトオーダーでパックしたものをビッグエンディアンに変換して整数にする
+    eth_p_all_hbo = [ Constants::Io::ETH_P_ALL ].pack("S").unpack('S>').first # ホストバイトオーダーでパックしたものをビッグエンディアンに変換して整数にする
     sockaddr_ll = [ Socket::AF_PACKET, eth_p_all_hbo, interface_idx ].pack("SS>a16") # [ホストバイトオーダー, ネットワークバイトオーダー, 16Byte固定長文字列]
 
     socket.bind(sockaddr_ll)
@@ -43,7 +44,7 @@ module SocketUtils
   #
   def interface_idx_str(socket, interface)
     ifreq = [interface, ""].pack("a16a16") # 16 Byte string * 2
-    socket.ioctl(SIOCGIFINDEX, ifreq) # get ifreq struct
+    socket.ioctl(Constants::Io::SIOCGIFINDEX, ifreq) # get ifreq struct
     ifreq.slice!(16, 4)
   end
 end
