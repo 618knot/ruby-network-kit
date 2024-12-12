@@ -26,12 +26,12 @@ class PacketAnalyzer < BaseAnalyzer
 
       @msg_bytes.slice!(...(ip.ihl * 4))
 
-      case ip.protocol        
-      when "ICMP"
+      case ip.protocol
+      when Constants::Ip::ICMP
         HeaderAnalyzer::Icmp.new(@msg_bytes.clone).analyze
-      when "TCP"
+      when Constants::Ip::TCP
         HeaderAnalyzer::Tcp.new(@msg_bytes.clone, ip).analyze
-      when "UDP"
+      when Constants::Ip::UDP
         HeaderAnalyzer::Udp.new(@msg_bytes.clone, ip).analyze
       else
       end
