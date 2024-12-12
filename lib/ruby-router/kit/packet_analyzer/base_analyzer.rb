@@ -78,7 +78,7 @@ class BaseAnalyzer
       sum = (sum & 0xffff) + (sum >> 16)
     end
 
-    sum
+    ~sum & 0xffff
   end
 
   def valid_checksum?(c)
