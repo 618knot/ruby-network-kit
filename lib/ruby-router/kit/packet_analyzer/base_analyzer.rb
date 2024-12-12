@@ -78,10 +78,27 @@ class BaseAnalyzer
       sum = (sum & 0xffff) + (sum >> 16)
     end
 
-    ~sum & 0xffff
+    sum
   end
 
   def valid_checksum?(c)
     c == 0 || c == 0xffff
+  end
+
+  #
+  # 疑似IPヘッダ
+  #
+  # @param [Array] len IP以下のパケット長(長さ2の配列)
+  #
+  # @return [Array] 疑似IPヘッダ
+  #
+  def pseudo_hddr(len)
+    [
+      @ip.saddr,    # Source Address:      4Byte
+      @ip.daddr,    # Destination Address: 4Byte
+      0,            # Reserved Division:   1Byte
+      @ip.protocol, # Protocol:            1Byte
+      len           # TCP/UDP Length:      2Byte
+    ].flatten
   end
 end
