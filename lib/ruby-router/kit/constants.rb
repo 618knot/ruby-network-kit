@@ -79,7 +79,11 @@ module Constants
       nil,
       nil,
       "UDP"
-  ].freeze
+    ].freeze
+
+    ICMP = 1.freeze
+    TCP = 6.freeze
+    UDP = 17.freeze
   end
 
   module Icmp
