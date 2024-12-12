@@ -8,6 +8,28 @@ module NetUtil
   include ProtocolStruct
   include SocketUtils
 
+  # def send_icmp_time_exceeded(if_socket, ether_header, ip_header)
+  #   r_ether_header = ETHER.new(
+  #     dhost: ether_header.dhost,
+  #     shost: ether_header.shost,
+  #     type: Constants::EtherTypes::IP,
+  #   )
+
+  #   r_iphdr = IP.new(
+  #     version: 4,
+  #     ihl: 20 / 4,
+  #     tos: 0,
+  #     tot_len: ,
+  #     id: 0,
+  #     frag_off: 0,
+  #     ttl: 64,
+  #     protocol: 1,
+  #     check: 0,
+  #     saddr: get_interface_ip(if_socket.first),
+  #     daddr: ip_header.saddr,
+  #   )
+  # end
+
   def get_device_info(interface)
     result = {}
   
@@ -60,7 +82,7 @@ module NetUtil
     ).to_packet
 
     packet = ether_header + arp
-    p socket
+
     socket.send(packet, 0)    
   end
 
