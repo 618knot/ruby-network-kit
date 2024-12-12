@@ -32,30 +32,7 @@ module HeaderAnalyzer
       @daddr = @msg_bytes.slice(16..19)                        # Destination Address: 4Byte
       @option = @ihl > 5 ? @msg_bytes.slice(20..@ihl * 4) : [] # Option
 
-      pseudo_ip
-
-      @tot_len = self.to_hex_int(@tot_len)
-      @id = self.to_hex_int(@id)
-      @frag_off = self.to_hex_int(@frag_off)
-      @protocol = Constants::Ip::PROTO[@protocol]
-      @check = self.to_hex_string(@check, is_formated: true)
-
       print_ip
-    end
-
-    #
-    # 疑似IPヘッダを生成する
-    #   TCP/UDP長については含めない
-    #
-    # @return [Array] 疑似IPヘッダ
-    #
-    def pseudo_ip
-      # @note Source Address:      4Byte
-      #       Destination Address: 4Byte
-      #       Reserved Division:   1Byte
-      #       Protocol:            1Byte
-      #       TCP/UDP Length:      2Byte
-      @pseudo_hddr = [@saddr.clone, @daddr.clone, 0, @protocol.clone].flatten
     end
 
     private
@@ -67,13 +44,13 @@ module HeaderAnalyzer
         "Version => #{@version}",
         "Header Length => #{@ihl} (#{@ihl * 4} Byte)",
         "Type of Service => #{@tos}",
-        "Total Length => #{@tot_len} Byte",
-        "Identifier => #{@id}",
-        "Flags => 0b#{(@frag_off & 0xe000).to_s(2).slice(0..2).rjust(3, "0")}",
-        "Fragment offset => 0x#{(@frag_off & 0x1fff).to_s(16)}",
+        "Total Length => #{self.to_hex_int(@tot_len)} Byte",
+        "Identifier => #{self.to_hex_int(@id)}",
+        "Flags => 0b#{(self.to_hex_int(@frag_off) & 0xe000).to_s(2).slice(0..2).rjust(3, "0")}",
+        "Fragment offset => 0x#{(self.to_hex_int(@frag_off) & 0x1fff).to_s(16)}",
         "Time to Live => #{@ttl}",
-        "Protocol => #{@protocol}",
-        "Checksum => #{@check}",
+        "Protocol => #{Constants::Ip::PROTO[@protocol]}",
+        "Checksum => #{self.to_hex_string(@check, is_formated: true)}",
         "Source Address => #{@saddr.join(".")}",
         "Destination Address => #{@daddr.join(".")}",
         "Option => #{@option}",

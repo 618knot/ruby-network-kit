@@ -20,11 +20,6 @@ module HeaderAnalyzer
       @len = @msg_bytes.slice(4..5)    # Data Length:      2Byte
       @check = @msg_bytes.slice(5..7)  # Checksum:        2Byte
 
-      @source = self.to_hex_int(@source)
-      @dest = self.to_hex_int(@dest)
-      @len = self.to_hex_int(@len)
-      @check = self.to_hex_string(@check, is_formated: true)
-
       print_udp
     end
 
@@ -34,13 +29,23 @@ module HeaderAnalyzer
       @logger.info("■■■■■ UDP Header ■■■■■")
 
       msg = [
-        "Source Port => #{@source}",
-        "Destination Port => #{@dest}",
-        "Data Length => #{@len}",
-        "Checksum => #{@check}",
+        "Source Port => #{self.to_hex_int(@source)}",
+        "Destination Port => #{self.to_hex_int(@dest)}",
+        "Data Length => #{self.to_hex_int(@len)}",
+        "Checksum => #{self.to_hex_string(@check, is_formated: true)}",
+        "Valid Checksum ? => #{udp_checksum}"
       ]
 
       out_msg_array(msg)
+    end
+
+    def udp_checksum
+      udp_len = [@msg_bytes.length].pack("n").unpack("C*")
+      
+      pseudo_ip = pseudo_hddr(udp_len)
+
+      c = checksum(pseudo_ip)
+      valid_checksum?(c)
     end
   end
 end
