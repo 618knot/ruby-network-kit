@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ProtocolStruct
+module Protocol
   ETHER = Struct.new(
     "Ether",
     :dhost, # Destination MAC address
