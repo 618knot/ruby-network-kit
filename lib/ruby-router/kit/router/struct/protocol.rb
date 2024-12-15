@@ -21,7 +21,24 @@ module Protocol
     :check,    # Checksum
     :saddr,    # Source Address
     :daddr,    # Destination Address
-  )
+    :option,
+  ) do
+
+    def to_binary
+      [
+        pack_c((version << 4) | ihl),
+        pack_c(tos),
+        two_bytes(tot_len),
+        two_bytes(id),
+        two_bytes(frag_off),
+        pack_c(ttl),
+        pack_c(protocol),
+        two_bytes(check),
+        four_bytes(saddr),
+        four_bytes(daddr),
+      ].join
+    end
+  end
 
   ICMP = Struct.new(
     "Icmp",
@@ -29,7 +46,17 @@ module Protocol
     :code, # ICMP Code
     :check, # Checksum
     :void,
-  )
+  ) do
+    
+    def to_binary
+      [
+        pack_c(type),
+        pack_c(code),
+        two_bytes(check),
+        four_bytes(void),
+      ].join
+    end
+  end
 
   ARP = Struct.new(
     "Arp",
@@ -43,4 +70,18 @@ module Protocol
     :tha, # Target MAC address
     :tpa, # Target IP address
   )
+
+  private
+
+  def two_bytes(v)
+    [v].pack("S>")
+  end
+
+  def four_bytes(v)
+    [v].pack("L>")
+  end
+
+  def pack_c(v)
+    [v].pack("C*")
+  end
 end
