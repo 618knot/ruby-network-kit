@@ -3,6 +3,8 @@
 module Base
   DEVICE = Struct.new(
     "Device",
+    :if_name,
+    :socket,
     :hwaddr,
     :addr,
     :subnet,
@@ -27,13 +29,16 @@ module Base
     :mutex,
   )
 
-  IP2MAC = Struct.new(
-    "Ip2mac",
-    :flag,
-    :device_no,
-    :addr,
-    :hwaddr,
-    :last_time,
-    :send_data,
-  )
+  class IP2MAC
+    attr_accessor :flag, :device_no, :addr, :hwaddr, :last_time, :send_data
+
+    def initialize(device_no, addr, hwaddr)
+      @flag = hwaddr ? :ok : :ng
+      @device_no = device_no
+      @addr = addr
+      @hwaddr = hwaddr || [0, 0, 0, 0, 0, 0]
+      @last_time = Time.now
+      @send_data = SEND_DATA.new(mutex: Mutex.new)
+    end
+  end
 end
