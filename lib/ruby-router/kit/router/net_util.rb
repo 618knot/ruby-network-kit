@@ -1,59 +1,12 @@
 # frozen_string_literal: true
 
 require_relative "../constants"
-require_relative "protocol_struct"
+require_relative "./struct/protocol"
 require "socket"
 
 module NetUtil
-  include ProtocolStruct
+  include Protocol
   include SocketUtils
-
-  # def send_icmp_time_exceeded(if_socket, ether_header, ip_header)
-  #   r_ether_header = ETHER.new(
-  #     dhost: ether_header.dhost,
-  #     shost: ether_header.shost,
-  #     type: Constants::EtherTypes::IP,
-  #   )
-
-  #   r_iphdr = IP.new(
-  #     version: 4,
-  #     ihl: 20 / 4,
-  #     tos: 0,
-  #     tot_len: ,
-  #     id: 0,
-  #     frag_off: 0,
-  #     ttl: 64,
-  #     protocol: 1,
-  #     check: 0,
-  #     saddr: get_interface_ip(if_socket.first),
-  #     daddr: ip_header.saddr,
-  #   )
-  # end
-
-  def get_device_info(interface)
-    result = {}
-  
-    Socket.getifaddrs.each { |iface|
-      next unless iface.name == interface
-      next if iface.addr.nil?
-  
-      if iface.addr.pfamily == Socket::AF_PACKET
-        match = iface.addr.inspect_sockaddr.match(/hwaddr=([\h:]+)/)
-        result[:mac_address] = match[0].delete("hwaddr=")
-      end
-  
-      if iface.addr.ipv4?
-        result[:ipv4_address] = iface.addr.ip_address
-        result[:netmask] = iface.netmask.ip_address if iface.netmask
-      end
-  
-      if result[:ipv4_address] && result[:netmask]
-        result[:subnet] = calculate_subnet(result[:ipv4_address], result[:netmask])
-      end
-    }
-  
-    result
-  end
 
   def send_arp_request(socket, s_mac, t_mac, s_ip, t_ip)
     s_mac_packed = s_mac.pack("C*")
@@ -64,8 +17,8 @@ module NetUtil
     ether_header = ETHER.new(
       dhost: t_mac_packed,
       shost: s_mac_packed,
-      type: [0x0806].pack('S>'),
-    ).to_packet
+      type: [0x0806].pack("S>"),
+    ).to_binary
 
     packed_arp_header = [0x0001, 0x0800, 6, 4, 0x0001].pack("S>S>CCS>")
 
@@ -79,11 +32,11 @@ module NetUtil
       spa: s_ip_packed,
       tha: t_mac_packed,
       tpa: t_ip_packed,
-    ).to_packet
+    ).to_binary
 
     packet = ether_header + arp
 
-    socket.send(packet, 0)    
+    socket.write(packet)
   end
 
   #
