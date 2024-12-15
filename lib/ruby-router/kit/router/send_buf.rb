@@ -49,7 +49,7 @@ module SendBuf
       if send_data.top.nil?
         send_data.bottom = nil
       else
-        send_data.top.before = nil?
+        send_data.top.before = nil
       end
 
       send_data.dno -= 1
