@@ -64,6 +64,10 @@ module NetUtil
     ip.split(".").map(&:to_i)
   end
 
+  def mac_addr_to_arr(mac)
+    mac.split(":").map(&:to_i)
+  end
+
   private
 
   def calculate_subnet(ip_address, netmask)
