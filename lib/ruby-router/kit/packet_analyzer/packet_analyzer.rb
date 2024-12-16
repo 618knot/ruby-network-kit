@@ -12,34 +12,53 @@ require_relative "base_analyzer"
 
 class PacketAnalyzer < BaseAnalyzer
   def analyze
+    result = {}
+
     ether_header = HeaderAnalyzer::Ether.new(@msg_bytes.clone)
     ether_header.analyze
+
+    result[:ether] = ether_header
 
     @msg_bytes.slice!(...14)
 
     case ether_header.int_hex_type
     when Constants::EtherTypes::ARP
-      HeaderAnalyzer::Arp.new(@msg_bytes.clone).analyze
+      arp = HeaderAnalyzer::Arp.new(@msg_bytes.clone)
+      arp.analyze
+
+      result[:arp] = arp_header
     when Constants::EtherTypes::IP
       ip = HeaderAnalyzer::Ip.new(@msg_bytes.clone)
       ip.analyze
+
+      result[:ip] = ip
 
       @msg_bytes.slice!(...(ip.ihl * 4))
 
       case ip.protocol
       when Constants::Ip::ICMP
-        HeaderAnalyzer::Icmp.new(@msg_bytes.clone).analyze
+        icmp = HeaderAnalyzer::Icmp.new(@msg_bytes.clone)
+        icmp.analyze
+
+        result[:icmp] = icmp
       when Constants::Ip::TCP
-        HeaderAnalyzer::Tcp.new(@msg_bytes.clone, ip).analyze
+        tcp = HeaderAnalyzer::Tcp.new(@msg_bytes.clone, ip)
+        tcp.analyze
+
+        result[:tcp] = tcp
       when Constants::Ip::UDP
-        HeaderAnalyzer::Udp.new(@msg_bytes.clone, ip).analyze
+        udp = HeaderAnalyzer::Udp.new(@msg_bytes.clone, ip)
+        udp.analyze
+
+        result[:udp] = udp
       else
       end
 
     else
       return
     end
-
     @logger.debug("--------------------------------------------")
+
+    result
   end
 end
