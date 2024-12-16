@@ -60,6 +60,10 @@ module NetUtil
     ~sum & 0xffff
   end
 
+  def ip_addr_to_arr(ip)
+    ip.split(".").map(&:to_i)
+  end
+
   private
 
   def calculate_subnet(ip_address, netmask)
