@@ -3,9 +3,9 @@ class BaseAnalyzer
   #
   # @param [Array] msg_bytes
   #
-  def initialize(msg_bytes)
+  def initialize(msg_bytes, disable_log: false)
     @msg_bytes = msg_bytes
-    @logger ||= CustomLogger.new
+    @logger ||= CustomLogger.new(is_disabled: disable_log)
   end
 
   def analyze
