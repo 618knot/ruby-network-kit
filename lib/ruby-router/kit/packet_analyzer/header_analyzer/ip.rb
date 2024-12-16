@@ -15,7 +15,6 @@ module HeaderAnalyzer
       :saddr,
       :daddr,
       :option,
-      :pseudo_hddr
       )
 
     def analyze
