@@ -3,7 +3,7 @@
 require_relative "../socket_utils"
 require_relative "net_util"
 require_relative "../packet_analyzer/packet_analyzer"
-require_relative "r_base"
+require_relative "router_base"
 
 module Router
   class Router < RouterBase
@@ -62,8 +62,8 @@ module Router
       
       r_ether_header = ETHER.new(
         dhost: ether_header.shost,
-        shost: device.hwaddr,
-        type: Constants::EtherTypes::IP,
+        shost: mac_addr_to_arr(device.hwaddr),
+        type: [Constants::EtherTypes::IP].pack("S>"),
       )
   
       r_iphdr = IP.new(
