@@ -24,6 +24,12 @@ module Protocol
     :option,
   ) do
 
+    def copy_from_analyzed(ip)
+      self.members.each do |attr|
+        self.send("#{attr}=", ip.send(attr))
+      end
+    end
+
     def to_binary
       [
         pack_c((version << 4) | ihl),
@@ -74,14 +80,14 @@ module Protocol
   private
 
   def two_bytes(v)
-    [v].pack("S>")
+    [v].flatten.pack("S>")
   end
 
   def four_bytes(v)
-    [v].pack("L>")
+    [v].flatten.pack("L>")
   end
 
   def pack_c(v)
-    [v].pack("C*")
+    [v].flatten.pack("C*")
   end
 end
