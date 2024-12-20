@@ -10,7 +10,11 @@ class RouterBase
   include Base
 
   attr_reader :logger, :next_ip, :devices
-  attr_accessor :end_flag
+
+  class << self
+    attr_accessor :end_flag
+    attr_reader :devices
+  end
 
   def initialize(interface1, interface2, next_ip)
     @logger ||= CustomLogger.new
