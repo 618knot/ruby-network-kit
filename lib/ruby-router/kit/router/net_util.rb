@@ -60,12 +60,36 @@ module NetUtil
     ~sum & 0xffff
   end
 
+  def ip_checksum_for_sending(ip)
+    ip.check = 0
+    ip_arr = ip.to_binary.bytes
+
+    ip.check = checksum(ip_arr)
+  end
+
+  def valid_checksum?(c)
+    c == 0 || c == 0xffff
+  end
+
   def ip_addr_to_arr(ip)
     ip.split(".").map(&:to_i)
   end
 
   def mac_addr_to_arr(mac)
     mac.split(":").map(&:to_i)
+  end
+
+  #
+  # Int Arrayを16進数値(10進数)に直す
+  #
+  # @param [Array] array
+  #
+  # @return [Integer]
+  #
+  def to_hex_int(array)
+    str = ""
+    array.map{ |e| str << e.to_s(16).rjust(2, "0") }
+    str.to_i(16)
   end
 
   private
