@@ -38,7 +38,7 @@ class Ip2MacManager
       return ip2mac
     else
       device = RouterBase.devices[device_no]
-      send_arp_request(device.socket, addr, [0xff] * 6, device.addr.split(".").map(&:to_i), device.hwaddr.split(":").map(&:to_i))
+      send_arp_request(device.socket, addr, [0xff] * 6, device.addr.split(".").map(&:to_i), device.hwaddr.split(":").map { |m| m.to_i(16) })
       return ip2mac
     end
   end
@@ -60,11 +60,8 @@ class Ip2MacManager
       if ip2mac.addr == addr
         ip2mac.last_time = now if ip2mac.flag == :ok
 
-        if hwaddr.present?
-          ip2mac.hwaddr = hwaddr
-          ip2mac.flag = :ok
-
-          SendReqDataManager.instance.append_send_req_data(device_no, i) if ip2mac.send_data.top.present?
+        if not hwaddr.empty?
+          SendReqDataManager.instance.append_send_req_data(device_no, i) if not ip2mac.send_data.queue.empty?
 
           return ip2mac
         elsif can_clear_data?(ip2mac, now)
