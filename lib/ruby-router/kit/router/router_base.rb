@@ -17,7 +17,7 @@ class RouterBase
   end
 
   def initialize(interface1, interface2, next_ip)
-    @logger ||= CustomLogger.new
+    @logger = CustomLogger.new
     @interface1 ||= interface1
     @interface2 ||= interface2
     @next_ip ||= next_ip
