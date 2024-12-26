@@ -57,6 +57,7 @@ module Router
               next
             rescue StandardError => e
               @logger.warn("Error reading socket: #{e.message}")
+              @logger.debug(e.backtrace)
             end
           end
         rescue
@@ -116,16 +117,16 @@ module Router
         @logger.debug("#{@devices[device_no].if_name}: Ethernet header not found")
         return
       end
-      p device_no
-      p ether.dst_mac_address, @devices[device_no].hwaddr.split(":").map(&:to_i), @devices[0].hwaddr.split(":").map(&:to_i)
-      p :aaaa
-      if ether.dst_mac_address != @devices[device_no].hwaddr.split(":").map(&:to_i)
-        p :fuga
+
+      device_hwaddr = @devices[device_no].hwaddr.split(":").map{ |m| m.to_i(16) }
+      bcast = Array.new(6, 0xff)
+
+      if ether.dst_mac_address != device_hwaddr && ether.dst_mac_address != bcast
         @logger.debug("#{@devices[device_no].if_name}: Destination MAC does not match => #{ether.dst_mac_address}")
         return
       end
 
-      case ether.type
+      case ether.int_hex_type
       when Constants::EtherTypes::ARP
         analyze_arp(device_no, @analyzed_data[:arp])
       when Constants::EtherTypes::IP
