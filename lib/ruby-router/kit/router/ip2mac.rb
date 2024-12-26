@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "struct/protocol"
+require_relative "struct/base"
 require_relative "send_data_manager"
 require_relative "send_req_data_manager"
 require_relative "router_base"
@@ -18,6 +19,8 @@ end
 
 class Ip2MacManager
   include Singleton
+
+  include Base
 
   attr_accessor :ip2macs
 
