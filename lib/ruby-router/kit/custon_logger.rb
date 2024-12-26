@@ -15,18 +15,18 @@ class CustomLogger
   end
 
   def debug(str)
-    @logger.debug(str) if @is_disabled
+    @logger.debug(str) unless @is_disabled
   end
 
   def info(str)
-    @logger.info(str.info) if @is_disabled
+    @logger.info(str.info) unless @is_disabled
   end
 
   def warn(str)
-    @logger.warn(str.warn) if @is_disabled
+    @logger.warn(str.warn) unless @is_disabled
   end
 
   def fatal(str)
-    @logger.fatal(str.danger) if @is_disabled
+    @logger.fatal(str.danger) unless @is_disabled
   end
 end
