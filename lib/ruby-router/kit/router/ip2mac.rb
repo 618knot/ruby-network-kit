@@ -6,14 +6,6 @@ require_relative "send_req_data_manager"
 require_relative "router_base"
 require "singleton"
 
-# module Ip2Mac
-
-  # IP2MAC_TIMEOUT_SEC = 60.freeze
-  # IP2MAC_TIMEOUT_NG_SEC = 1.freeze
-
-  # ETHER_HEADER_SIZE = 14.freeze
-  # IP_HEADER_BASE_SIZE = 20.freeze
-
 class IP2MacTable
   attr_accessor :data, :size, :no
 
@@ -113,41 +105,3 @@ class Ip2MacManager
     is_ok_flg_timed_out || is_ng_flg_timed_out
   end
 end
-
-  # def buffer_send_one
-  #   loop do
-  #     send_data_hash = get_send_data
-  #     break if send_data_hash.values.compact.empty?
-      
-  #     ptr = send_data_hash[:data].clone
-  #     eth
-
-  #   end
-  # end
-
-  # def append_send_req_data
-    
-  # end
-
-  # def get_send_req_data
-    
-  # end
-
-  # def buffer_send
-    
-  #   loop do
-  #     # break if get_send_req_data
-      
-  #     # buffer_send_one
-  #   end
-  # end
-
-#   private
-
-#   def can_clear_data?(ip2mac, now)
-#     is_ok_flg_timed_out = ip2mac.flag == :ok && now - ip2mac.last_time > IP2MAC_TIMEOUT_SEC
-#     is_ng_flg_timed_out = ip2mac.flag == :ng && now - ip2mac.last_time > IP2MAC_TIMEOUT_NG_SEC
-
-#     is_ok_flg_timed_out || is_ng_flg_timed_out
-#   end
-# end
