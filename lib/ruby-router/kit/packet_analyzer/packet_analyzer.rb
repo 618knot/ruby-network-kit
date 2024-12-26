@@ -26,7 +26,7 @@ class PacketAnalyzer < BaseAnalyzer
       arp = HeaderAnalyzer::Arp.new(@msg_bytes.clone)
       arp.analyze
 
-      result[:arp] = arp_header
+      result[:arp] = arp
     when Constants::EtherTypes::IP
       ip = HeaderAnalyzer::Ip.new(@msg_bytes.clone)
       ip.analyze
