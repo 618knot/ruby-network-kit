@@ -39,7 +39,7 @@ class RouterBase
     
         if iface.addr.pfamily == Socket::AF_PACKET
           match = iface.addr.inspect_sockaddr.match(/hwaddr=([\h:]+)/)
-          result.hwaddr = match[0].delete("hwaddr=")
+          result.hwaddr = match[1]
         end
     
         if iface.addr.ipv4?
