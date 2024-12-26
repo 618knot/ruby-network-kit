@@ -7,6 +7,8 @@ class SendDataManager
 
   MAX_BUCKET_SIZE = (1024 * 1024).freeze
 
+  attr_accessor :queue
+
   def initialize
     @queue = Queue.new
     @in_bucket_size = 0
