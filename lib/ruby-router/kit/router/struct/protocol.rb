@@ -42,7 +42,8 @@ module Protocol
         two_bytes(check),
         four_bytes(saddr),
         four_bytes(daddr),
-      ].join
+        pack_c(option),
+      ].reject(&:blank?).join
     end
   end
 

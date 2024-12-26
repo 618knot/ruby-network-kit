@@ -6,6 +6,7 @@ require_relative "../packet_analyzer/packet_analyzer"
 require_relative "router_base"
 require_relative "../packet_analyzer/packet_analyzer"
 require_relative "../constants"
+require_relative "send_req_data_manager"
 require "ipaddr"
 
 module Router
@@ -23,8 +24,12 @@ module Router
     end
 
     def run
-      
+      # @logger.info("Router is running...")
+      Thread.new { SendReqDataManager.instance.buffer_send }
+      router
     end
+
+    private
 
     def router
       buf_size = 2048
@@ -33,7 +38,7 @@ module Router
 
       @logger.info("Router is running...")
 
-      while not end_flag
+      until @end_flag
         begin
           readable, _, _ = IO.select(self.devices.map { |d| d.socket }, nil, nil, 0.1)
 
@@ -56,12 +61,12 @@ module Router
           end
         rescue
           enable_ip_forward
+          SendReqDataManager.instance.stop
           self.end_flag = true
+          @logger.info("end")
         end
       end
     end
-
-    private
 
     def send_icmp_time_exceeded(device_no, ether_header, ip_header, data)
       device = self.devices[device_no]
@@ -104,15 +109,18 @@ module Router
     end
 
     def analyze_packet(device_no, data)
-      @analyzed_data = PacketAnalyzer.new(data.bytes, disable_log: true).analyze
+      @analyzed_data = PacketAnalyzer.new(data.bytes).analyze
       ether = @analyzed_data[:ether]
-
+      
       if ether.nil?
         @logger.debug("#{@devices[device_no].if_name}: Ethernet header not found")
         return
       end
-
-      if ether.dst_mac_address != @devices[device_no].hwaddr
+      p device_no
+      p ether.dst_mac_address, @devices[device_no].hwaddr.split(":").map(&:to_i), @devices[0].hwaddr.split(":").map(&:to_i)
+      p :aaaa
+      if ether.dst_mac_address != @devices[device_no].hwaddr.split(":").map(&:to_i)
+        p :fuga
         @logger.debug("#{@devices[device_no].if_name}: Destination MAC does not match => #{ether.dst_mac_address}")
         return
       end
@@ -149,7 +157,7 @@ module Router
       @logger.debug("#{@devices[device_no].if_name}: Receive ARP REQUEST") if arp_op == 1 # ARPOP_REQUEST
       @logger.debug("#{@devices[device_no].if_name}: Receive ARP REPLY") if arp_op == 2 # ARPOP_REPLY
       
-      ip2mac(device_no, arp.arp_spa, arp.arp_sha)
+      Ip2MacManager.instance.ip_to_mac(device_no, arp.arp_spa, arp.arp_sha)
     end
 
     def analyze_ip(device_no, ip, ether, data)
@@ -173,10 +181,10 @@ module Router
       sender_devices = @devices.clone.delete_at(device_no)
 
       sender_devices.each_with_index do |device, idx|
-        if (IPAddr.new(dest_ip) & IPAddr.new(device.netmask).to_i) == IPAddr.new(devive.subnet).to_i
+        if (IPAddr.new(dest_ip).to_i & IPAddr.new(device.netmask).to_i) == IPAddr.new(devive.subnet).to_i
           handle_segment(device_no, idx, ip_cpy, data)
         else
-          handle_next(device_no, idx, ip_cpy, data)
+          handle_next(idx, ip_cpy, data)
         end
       end
     end
@@ -189,18 +197,18 @@ module Router
         return
       end
 
-      ip2mac = ip_to_mac(tno, dest_ip, nil)
-      if ip2mac.flag == :ng || ip2mac.send_data.dno != 0
-        append_send_data(ip2mac, 1, ip.dest_ip, data)
+      ip2mac = Ip2MacManager.instance.ip_to_mac(tno, dest_ip, nil)
+      if ip2mac.flag == :ng || !ip2mac.send_data.queue.empty?
+        ip2mac.send_data.append_send_data(ip.dest_ip, data, data.size)
       else
         forward_packet(ip2mac.hwaddr, tno, ip, data)
       end
     end
 
-    def handle_next(device_no, tno, ip, data)
-      ip2mac = ip_to_mac(tno, @next_ip, nil)
-      if ip2mac.flag == :ng || ip2mac.send_data.dno != 0
-        append_send_data(ip2mac, 1, @next_ip, nil)
+    def handle_next(tno, ip, data)
+      ip2mac = Ip2MacManager.instance.ip_to_mac(tno, @next_ip, nil)
+      if ip2mac.flag == :ng || !ip2mac.send_data.queue.empty?
+        ip2mac.send_data.append_send_data(@next_ip, data, data.size)
       else
         forward_packet(ip2mac.hwaddr, tno, ip, data)
       end

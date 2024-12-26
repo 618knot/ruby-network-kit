@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../send_data_manager"
+
 module Base
   DEVICE = Struct.new(
     "Device",
@@ -13,21 +15,21 @@ module Base
 
   DATA_BUF = Struct.new(
     "DataBuf",
-    :next,
-    :before,
+    # :next,
+    # :prev,
     :time,
     :size,
     :data,
   )
 
-  SEND_DATA = Struct.new(
-    "SendData",
-    :top,
-    :bottom,
-    :dno,
-    :in_bucket_size,
-    :mutex,
-  )
+  # SEND_DATA = Struct.new(
+  #   "SendData",
+  #   :top,
+  #   :bottom,
+  #   :dno,
+  #   :in_bucket_size,
+  #   :mutex,
+  # )
 
   class IP2MAC
     attr_accessor :flag, :device_no, :addr, :hwaddr, :last_time, :send_data
@@ -38,7 +40,7 @@ module Base
       @addr = addr
       @hwaddr = hwaddr || [0, 0, 0, 0, 0, 0]
       @last_time = Time.now
-      @send_data = SEND_DATA.new(mutex: Mutex.new)
+      @send_data = SendDataManager.new
     end
   end
 end
