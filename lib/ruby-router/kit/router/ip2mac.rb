@@ -83,7 +83,7 @@ class Ip2MacManager
     if free_no.nil?
       no = ip2mac_table.no
 
-      if no >= ip2mac.size
+      if no >= ip2mac_table.size
         ip2mac_table.size += 1024
       end
 
