@@ -8,9 +8,10 @@ class CustomLogger
   # @param [String or Class] mode outputのモード
   #
   def initialize(mode: nil, is_disabled: false)
-    @logger = Logger.new(
-      mode.nil? ? STDOUT : mode
-    )
+    # @logger = Logger.new(
+    #   mode.nil? ? STDOUT : mode
+    # )
+    @logger = Logger.new("dbg.log")
     @is_disabled = is_disabled
   end
 

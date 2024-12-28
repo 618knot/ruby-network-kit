@@ -4,10 +4,10 @@ require "singleton"
 require "thread"
 require_relative "struct/base"
 require_relative "struct/protocol"
-require_relative "router_base"
 require_relative "../packet_analyzer/packet_analyzer"
 require_relative "net_util"
 require_relative "ip2mac"
+require_relative "../custon_logger"
 
 class SendReqDataManager
   include Singleton
@@ -20,9 +20,12 @@ class SendReqDataManager
     @mutex = Mutex.new
     @cond = ConditionVariable.new
     @end_flag = false
+    @logger ||= CustomLogger.new
   end
 
-  def append_send_req_data(device_no, ip2mac_no)
+  def append_send_req_data(device_no, ip2mac_no, devices)
+
+    @devices ||= devices
     arr = [device_no, ip2mac_no]
 
     @mutex.synchronize do
@@ -30,6 +33,8 @@ class SendReqDataManager
 
       @queue.push(arr)
     end
+
+    @logger.debug("#{@devices[device_no].if_name}: Append Send Req Data")
   end
 
   def get_send_req_data
@@ -41,6 +46,8 @@ class SendReqDataManager
       req_data = @queue.pop
       @set.delete(req_data)
     end
+
+    @logger.debug("Get Send Req Data")
 
     req_data
   end
@@ -67,11 +74,17 @@ class SendReqDataManager
   def buffer_send_one(device_no, ip2mac_no)
     loop do
       ip2mac = Ip2MacManager.instance.ip2macs[device_no].data[ip2mac_no]
-      data = ip2mac.send_data.get_send_data
+
+      tmp = ip2mac.send_data.get_send_data
+      p tmp
+
+      data = tmp.data
+
+      p data
 
       break if data.nil?
 
-      analyzed_data = PacketAnalyzer.new(data.bytes).analyze
+      analyzed_data = PacketAnalyzer.new(data.bytes, disable_log: true).analyze
       analyzed_ether = analyzed_data[:ether]
 
       ether_bin = ETHER.new(
@@ -82,14 +95,21 @@ class SendReqDataManager
 
       ip_header = IP.new
       ip_header.copy_from_analyzed(analyzed_data[:ip])
-      ip_header.ttl[0] -= 1
-      ip_checksum_for_sending(ip_header.to_binary.bytes)
+      ip_header.ttl -= 1
+
+      p ip_header
+
+      ip_checksum_for_sending(ip_header)
       ip_bin = ip_header.to_binary
 
       packet = ether_bin + ip_bin + data.slice(ether_bin.length + ip_bin.length..)
 
-      socket = RouterBase.devices[device_no].socket
+      socket = @devices[device_no].socket
       socket.write(packet)
+
+      p :buf
+      @logger.debug("#{@devices[device_no].if_name}: Buffer Send One")
+      @logger.debug(packet.bytes)
     end
   end
 

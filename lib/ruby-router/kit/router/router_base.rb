@@ -20,7 +20,7 @@ class RouterBase
     @logger = CustomLogger.new
     @interface1 ||= interface1
     @interface2 ||= interface2
-    @next_ip ||= next_ip
+    @next_ip ||= next_ip.split(".").map(&:to_i)
     @devices ||= get_device_info(@interface1, @interface2)
     @end_flag = false
   end
@@ -39,12 +39,12 @@ class RouterBase
     
         if iface.addr.pfamily == Socket::AF_PACKET
           match = iface.addr.inspect_sockaddr.match(/hwaddr=([\h:]+)/)
-          result.hwaddr = match[1]
+          result.hwaddr = match[1].split(":").map { |m| m.to_i(16) }
         end
     
         if iface.addr.ipv4?
-          result.addr = iface.addr.ip_address
-          result.netmask = iface.netmask.ip_address if iface.netmask
+          result.addr = iface.addr.ip_address.split(".").map(&:to_i)
+          result.netmask = iface.netmask.ip_address.split(".").map(&:to_i) if iface.netmask
         end
     
         if result.addr && result.netmask

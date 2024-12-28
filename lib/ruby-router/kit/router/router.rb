@@ -36,6 +36,7 @@ module Router
       disable_ip_forward
 
       @logger.info("Router is running...")
+      @logger.debug("\n#{@devices.join("\n")}")
 
       until @end_flag
         begin
@@ -81,12 +82,12 @@ module Router
         version: 4,
         ihl: 20 / 4,
         tos: 0,
-        tot_len: 8 + 64,
-        id: 0,
-        frag_off: 0,
+        tot_len: [0, 8 + 64],
+        id: [0, 0],
+        frag_off: [0, 0],
         ttl: 64,
         protocol: 1,
-        check: 0,
+        check: [0, 0],
         saddr: ip_addr_to_arr(device.addr),
         daddr: ip_header.saddr,
       )
@@ -117,11 +118,11 @@ module Router
         return
       end
 
-      device_hwaddr = @devices[device_no].hwaddr.split(":").map{ |m| m.to_i(16) }
+      device_hwaddr = @devices[device_no].hwaddr
       bcast = Array.new(6, 0xff)
 
       if ether.dst_mac_address != device_hwaddr && ether.dst_mac_address != bcast
-        @logger.debug("#{@devices[device_no].if_name}: Destination MAC does not match => #{ether.dst_mac_address}")
+        @logger.debug("#{@devices[device_no].if_name}: Destination MAC does not match => #{ether.dst_mac_address.map { |m| m.to_s(16) }.join(":")}")
         return
       end
 
@@ -156,8 +157,8 @@ module Router
 
       @logger.debug("#{@devices[device_no].if_name}: Receive ARP REQUEST") if arp_op == 1 # ARPOP_REQUEST
       @logger.debug("#{@devices[device_no].if_name}: Receive ARP REPLY") if arp_op == 2 # ARPOP_REPLY
-      
-      Ip2MacManager.instance.ip_to_mac(device_no, arp.arp_spa, arp.arp_sha)
+
+      Ip2MacManager.instance.ip_to_mac(device_no, arp.arp_spa, arp.arp_sha, @devices)
     end
 
     def analyze_ip(device_no, ip, ether, data)
@@ -177,11 +178,13 @@ module Router
         return
       end
 
-      dest_ip = ip_cpy.dest_ip.join(":")
-      sender_devices = @devices.clone.delete_at(device_no)
+      sender_devices = @devices.clone
+      sender_devices[device_no] = nil
 
-      sender_devices.each_with_index do |device, idx|
-        if (IPAddr.new(dest_ip).to_i & IPAddr.new(device.netmask).to_i) == IPAddr.new(devive.subnet).to_i
+      sender_devices.each_with_index do |device,idx|
+        next if device.nil?
+
+        if (IPAddr.new(ip_cpy.daddr.join(".")).to_i & IPAddr.new(device.netmask.join(".")).to_i) == IPAddr.new(device.subnet.join(".")).to_i
           handle_segment(device_no, idx, ip_cpy, data)
         else
           handle_next(idx, ip_cpy, data)
@@ -190,14 +193,13 @@ module Router
     end
 
     def handle_segment(device_no, tno, ip, data)
-      dest_ip = ip.dest_ip.join(":")
-      if dest_ip == @devices[device_no].addr
+      if ip.dest_ip.join(":") == @devices[device_no].addr
         @logger.debug("#{@devices[device_no].if_name}: Received for this device")
 
         return
       end
 
-      ip2mac = Ip2MacManager.instance.ip_to_mac(tno, dest_ip, nil)
+      ip2mac = Ip2MacManager.instance.ip_to_mac(tno, ip.dest_ip, nil, @devices)
       if ip2mac.flag == :ng || !ip2mac.send_data.queue.empty?
         ip2mac.send_data.append_send_data(ip.dest_ip, data, data.size)
       else
@@ -206,7 +208,7 @@ module Router
     end
 
     def handle_next(tno, ip, data)
-      ip2mac = Ip2MacManager.instance.ip_to_mac(tno, @next_ip, nil)
+      ip2mac = Ip2MacManager.instance.ip_to_mac(tno, @next_ip, nil, @devices)
       if ip2mac.flag == :ng || !ip2mac.send_data.queue.empty?
         ip2mac.send_data.append_send_data(@next_ip, data, data.size)
       else

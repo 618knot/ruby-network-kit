@@ -1,12 +1,18 @@
 require_relative "../constants"
 require_relative "./struct/protocol"
+require_relative "../packet_analyzer/packet_analyzer"
 require "socket"
 
 module NetUtil
   include Protocol
   include SocketUtils
 
-  def send_arp_request(socket, s_mac, t_mac, s_ip, t_ip)
+  def send_arp_request(socket, t_ip, t_mac, s_ip, s_mac)
+    raise StandardError if t_ip.class != Array
+    raise StandardError if s_ip.class != Array
+    raise StandardError if t_mac.class != Array
+    raise StandardError if s_mac.class != Array
+
     s_mac_packed = s_mac.pack("C*")
     t_mac_packed = t_mac.pack("C*")
     s_ip_packed = s_ip.pack("C*")
@@ -28,12 +34,16 @@ module NetUtil
       op: packed_arp_header.slice(6..),
       sha: s_mac_packed,
       spa: s_ip_packed,
-      tha: t_mac_packed,
+      tha: ([0x00] * 6).pack("C*"),
       tpa: t_ip_packed,
     ).to_binary
 
     packet = ether_header + arp
-
+    # p :aarrrpppp
+    # p :aaaaa
+    # PacketAnalyzer.new(packet.bytes).analyze
+    # p :bbbbbb
+    # p :send_arp
     socket.write(packet)
   end
 
@@ -93,11 +103,11 @@ module NetUtil
   private
 
   def calculate_subnet(ip_address, netmask)
-    ip = IPAddr.new(ip_address)
-    mask = IPAddr.new(netmask).to_i.to_s(2).delete("0").length
+    ip = IPAddr.new(ip_address.join("."))
+    mask = IPAddr.new(netmask.join(".")).to_i.to_s(2).delete("0").length
   
     subnet = ip.mask(mask)
   
-    subnet.to_s
+    subnet.to_s.split(".").map(&:to_i)
   end
 end

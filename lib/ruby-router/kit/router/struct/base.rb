@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../send_data_manager"
-
 module Base
   DEVICE = Struct.new(
     "Device",
@@ -23,13 +21,13 @@ module Base
   class IP2MAC
     attr_accessor :flag, :device_no, :addr, :hwaddr, :last_time, :send_data
 
-    def initialize(device_no, addr, hwaddr)
+    def initialize(device_no, addr, hwaddr, send_data_manager)
       @flag = hwaddr ? :ok : :ng
       @device_no = device_no
       @addr = addr
       @hwaddr = hwaddr || [0, 0, 0, 0, 0, 0]
       @last_time = Time.now
-      @send_data = SendDataManager.new
+      @send_data = send_data_manager
     end
   end
 end

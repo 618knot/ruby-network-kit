@@ -4,7 +4,8 @@ require_relative "struct/protocol"
 require_relative "struct/base"
 require_relative "send_data_manager"
 require_relative "send_req_data_manager"
-require_relative "router_base"
+require_relative "net_util"
+require_relative "../custon_logger"
 require "singleton"
 
 class IP2MacTable
@@ -21,6 +22,7 @@ class Ip2MacManager
   include Singleton
 
   include Base
+  include NetUtil
 
   attr_accessor :ip2macs
 
@@ -29,16 +31,23 @@ class Ip2MacManager
 
   def initialize
     @ip2macs = [IP2MacTable.new, IP2MacTable.new]
+    @logger ||= CustomLogger.new
   end
 
-  def ip_to_mac(device_no, addr, hwaddr)
-    ip2mac = ip2mac_search(device_no, addr, hwaddr)
+  def ip_to_mac(device_no, addr, hwaddr, deivces)
+    raise StandardError if addr.class != Array
+    raise StandardError if hwaddr.class != Array && !hwaddr.nil?
 
+    @devices ||= deivces
+    ip2mac = ip2mac_search(device_no, addr, hwaddr)
     if ip2mac.flag == :ok
       return ip2mac
     else
-      device = RouterBase.devices[device_no]
-      send_arp_request(device.socket, addr, [0xff] * 6, device.addr.split(".").map(&:to_i), device.hwaddr.split(":").map { |m| m.to_i(16) })
+      device = @devices[device_no]
+
+      send_arp_request(device.socket, addr, [0xff] * 6, device.addr, device.hwaddr)
+      @logger.debug("#{@devices[device_no].if_name}: Send Arp Request")
+
       return ip2mac
     end
   end
@@ -61,7 +70,7 @@ class Ip2MacManager
         ip2mac.last_time = now if ip2mac.flag == :ok
 
         if not hwaddr.empty?
-          SendReqDataManager.instance.append_send_req_data(device_no, i) if not ip2mac.send_data.queue.empty?
+          SendReqDataManager.instance.append_send_req_data(device_no, i, @devices) if not ip2mac.send_data.queue.empty?
 
           return ip2mac
         elsif can_clear_data?(ip2mac, now)
@@ -92,7 +101,7 @@ class Ip2MacManager
       no = free_no
     end
 
-    new_ip2mac = IP2MAC.new(device_no, addr, hwaddr)
+    new_ip2mac = IP2MAC.new(device_no, addr, hwaddr, SendDataManager.new)
     ip2mac_table.data[no] = new_ip2mac
 
     new_ip2mac

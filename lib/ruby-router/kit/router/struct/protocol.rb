@@ -35,16 +35,16 @@ module Protocol
       [
         pack_c((version << 4) | ihl),
         pack_c(tos),
-        two_bytes(tot_len),
-        two_bytes(id),
-        two_bytes(frag_off),
+        pack_c(tot_len),
+        pack_c(id),
+        pack_c(frag_off),
         pack_c(ttl),
         pack_c(protocol),
-        two_bytes(check),
-        four_bytes(saddr),
-        four_bytes(daddr),
+        pack_c(check),
+        pack_c(saddr),
+        pack_c(daddr),
         pack_c(option),
-      ].reject(&:blank?).join
+      ].reject(&:empty?).join
     end
   end
 

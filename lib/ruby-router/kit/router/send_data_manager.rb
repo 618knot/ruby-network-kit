@@ -4,6 +4,7 @@ require_relative "struct/base"
 require_relative "../custon_logger"
 
 class SendDataManager
+  include Base
 
   MAX_BUCKET_SIZE = (1024 * 1024).freeze
 
@@ -17,12 +18,14 @@ class SendDataManager
   end
 
   def append_send_data(addr, data, size)
+    @logger.debug("Append Send Data: #{addr}")
     @mutex.synchronize do
       return if @in_bucket_size > MAX_BUCKET_SIZE
 
       new_buf = DATA_BUF.new(
         time: Time.now,
         data: data,
+        size: size,
       )
 
       @queue.push(new_buf)
@@ -39,6 +42,8 @@ class SendDataManager
       send_data = @queue.pop
       @in_bucket_size -= send_data.size
     end
+
+    return send_data
   end
 
   def clear
