@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require_relative "../net_util"
+
 module Protocol
+  include NetUtil
+
   ETHER = Struct.new(
     "Ether",
     :dhost, # Destination MAC address
@@ -77,18 +81,4 @@ module Protocol
     :tha, # Target MAC address
     :tpa, # Target IP address
   )
-
-  private
-
-  def two_bytes(v)
-    [v].flatten.pack("S>")
-  end
-
-  def four_bytes(v)
-    [v].flatten.pack("L>")
-  end
-
-  def pack_c(v)
-    [v].flatten.pack("C*")
-  end
 end
