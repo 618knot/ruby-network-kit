@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../net_util"
-
 module Protocol
-  include NetUtil
 
   ETHER = Struct.new(
     "Ether",
