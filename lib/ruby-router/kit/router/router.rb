@@ -110,9 +110,9 @@ module Router
     end
 
     def analyze_packet(device_no, data)
-      @analyzed_data = PacketAnalyzer.new(data.bytes).analyze
+      @analyzed_data = PacketAnalyzer.new(data.bytes, disable_log: true).analyze
       ether = @analyzed_data[:ether]
-      
+
       if ether.nil?
         @logger.debug("#{@devices[device_no].if_name}: Ethernet header not found")
         return
@@ -193,15 +193,14 @@ module Router
     end
 
     def handle_segment(device_no, tno, ip, data)
-      if ip.dest_ip.join(":") == @devices[device_no].addr
+      if ip.daddr == @devices[device_no].addr
         @logger.debug("#{@devices[device_no].if_name}: Received for this device")
 
         return
       end
-
-      ip2mac = Ip2MacManager.instance.ip_to_mac(tno, ip.dest_ip, nil, @devices)
+      ip2mac = Ip2MacManager.instance.ip_to_mac(tno, ip.daddr, nil, @devices)
       if ip2mac.flag == :ng || !ip2mac.send_data.queue.empty?
-        ip2mac.send_data.append_send_data(ip.dest_ip, data, data.size)
+        ip2mac.send_data.append_send_data(ip.daddr, data, data.size)
       else
         forward_packet(ip2mac.hwaddr, tno, ip, data)
       end
@@ -225,7 +224,7 @@ module Router
       ether_bin = ETHER.new(
         dest_mac.pack("C*"),
         analyzed_eth.dst_mac_address.pack("C*"),
-        analyzed_eth.type.pack("S>"),
+        analyzed_eth.type.pack("C*"),
       ).to_binary
 
       ip_bin = ip.to_binary

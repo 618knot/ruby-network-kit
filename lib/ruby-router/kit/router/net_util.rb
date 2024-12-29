@@ -69,10 +69,10 @@ module NetUtil
   end
 
   def ip_checksum_for_sending(ip)
-    ip.check = 0
+    ip.check = [0, 0]
     ip_arr = ip.to_binary.bytes
 
-    ip.check = checksum(ip_arr)
+    ip.check = [checksum(ip_arr)].pack("S>").bytes
   end
 
   def valid_checksum?(c)

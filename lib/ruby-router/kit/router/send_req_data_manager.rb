@@ -74,40 +74,33 @@ class SendReqDataManager
   def buffer_send_one(device_no, ip2mac_no)
     loop do
       ip2mac = Ip2MacManager.instance.ip2macs[device_no].data[ip2mac_no]
+      send_data = ip2mac.send_data.get_send_data
 
-      tmp = ip2mac.send_data.get_send_data
-      p tmp
+      break if send_data.nil?
 
-      data = tmp.data
+      src_packet = send_data.data
 
-      p data
-
-      break if data.nil?
-
-      analyzed_data = PacketAnalyzer.new(data.bytes, disable_log: true).analyze
+      analyzed_data = PacketAnalyzer.new(src_packet.bytes, disable_log: true).analyze
       analyzed_ether = analyzed_data[:ether]
 
       ether_bin = ETHER.new(
-        dhost: ip2mac.hwaddr,
-        shost: analyzed_ether.src_mac_address,
-        type: analyzed_ether.type,
+        dhost: ip2mac.hwaddr.pack("C*"),
+        shost: analyzed_ether.src_mac_address.pack("C*"),
+        type: analyzed_ether.type.pack("C*"),
       ).to_binary
 
       ip_header = IP.new
       ip_header.copy_from_analyzed(analyzed_data[:ip])
       ip_header.ttl -= 1
 
-      p ip_header
-
       ip_checksum_for_sending(ip_header)
       ip_bin = ip_header.to_binary
 
-      packet = ether_bin + ip_bin + data.slice(ether_bin.length + ip_bin.length..)
+      packet = ether_bin + ip_bin + src_packet.slice(ether_bin.length + ip_bin.length..)
 
       socket = @devices[device_no].socket
       socket.write(packet)
 
-      p :buf
       @logger.debug("#{@devices[device_no].if_name}: Buffer Send One")
       @logger.debug(packet.bytes)
     end

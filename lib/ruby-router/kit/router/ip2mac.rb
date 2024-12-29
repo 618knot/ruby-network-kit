@@ -40,6 +40,9 @@ class Ip2MacManager
 
     @devices ||= deivces
     ip2mac = ip2mac_search(device_no, addr, hwaddr)
+
+    @logger.debug("#{@devices[device_no].if_name} #{ip2mac.addr} #{ip2mac.hwaddr} #{ip2mac.flag}")
+
     if ip2mac.flag == :ok
       return ip2mac
     else
@@ -69,7 +72,10 @@ class Ip2MacManager
       if ip2mac.addr == addr
         ip2mac.last_time = now if ip2mac.flag == :ok
 
-        if not hwaddr.empty?
+        if not hwaddr.nil?
+          ip2mac.hwaddr = hwaddr
+          ip2mac.flag = :ok
+
           SendReqDataManager.instance.append_send_req_data(device_no, i, @devices) if not ip2mac.send_data.queue.empty?
 
           return ip2mac
