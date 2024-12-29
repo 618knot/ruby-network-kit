@@ -39,11 +39,7 @@ module NetUtil
     ).to_binary
 
     packet = ether_header + arp
-    # p :aarrrpppp
-    # p :aaaaa
-    # PacketAnalyzer.new(packet.bytes).analyze
-    # p :bbbbbb
-    # p :send_arp
+
     socket.write(packet)
   end
 
