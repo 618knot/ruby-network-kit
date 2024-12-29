@@ -71,13 +71,13 @@ module Router
 
     def send_icmp_time_exceeded(device_no, ether_header, ip_header, data)
       device = self.devices[device_no]
-      
+
       r_ether_header = ETHER.new(
-        dhost: ether_header.shost,
-        shost: mac_addr_to_arr(device.hwaddr),
+        dhost: ether_header.src_mac_address.pack("C*"),
+        shost: device.hwaddr.pack("C*"),
         type: [Constants::EtherTypes::IP].pack("S>"),
       )
-  
+
       r_iphdr = IP.new(
         version: 4,
         ihl: 20 / 4,
@@ -88,11 +88,12 @@ module Router
         ttl: 64,
         protocol: 1,
         check: [0, 0],
-        saddr: ip_addr_to_arr(device.addr),
+        saddr: device.addr,
         daddr: ip_header.saddr,
+        option: []
       )
 
-      r_iphdr.check = checksum(r_iphdr.to_binary.bytes)
+      r_iphdr.check = [checksum(r_iphdr.to_binary.bytes)].pack("S>").bytes
 
       icmp = ICMP.new(
         type: 11, # ICMP_TIME_EXCEEDED
@@ -101,7 +102,7 @@ module Router
         void: 0,
       )
 
-      icmp.check = checksum(icmp.to_binary.bytes + ether_header)
+      icmp.check = checksum(icmp.to_binary.bytes)
 
       packet = r_ether_header.to_binary + r_iphdr.to_binary + icmp.to_binary + data.slice(14..(14 + 64))
 
