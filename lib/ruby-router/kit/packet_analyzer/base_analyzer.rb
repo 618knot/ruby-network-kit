@@ -57,7 +57,7 @@ class BaseAnalyzer
   # @param [Array] msg 出力する文字列を持つ配列
   #
   def out_msg_array(msg)
-    msg.map { |m| @logger.debug(m) }
+    msg.each { |m| @logger.debug(m) }
   end
 
   #
@@ -65,7 +65,7 @@ class BaseAnalyzer
   #
   # @param [Array] data header
   #
-  # @return [Array] bytes
+  # @return [Integer]
   #
   def checksum(data)
     sum = 0
