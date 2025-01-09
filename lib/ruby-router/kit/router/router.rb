@@ -93,7 +93,7 @@ module Router
         option: []
       )
 
-      r_iphdr.check = [checksum(r_iphdr.to_binary.bytes)].pack("S>").bytes
+      r_iphdr.check = [checksum(r_iphdr.bytes_str.bytes)].pack("S>").bytes
 
       icmp = ICMP.new(
         type: 11, # ICMP_TIME_EXCEEDED
@@ -102,9 +102,9 @@ module Router
         void: 0,
       )
 
-      icmp.check = checksum(icmp.to_binary.bytes)
+      icmp.check = checksum(icmp.bytes_str.bytes)
 
-      packet = r_ether_header.to_binary + r_iphdr.to_binary + icmp.to_binary + data.slice(14..(14 + 64))
+      packet = r_ether_header.bytes_str + r_iphdr.bytes_str + icmp.bytes_str + data.slice(14..(14 + 64))
 
       socket = @devices[device_no].socket
       socket.write(packet)
@@ -166,7 +166,7 @@ module Router
       ip_cpy = IP.new
       ip_cpy.copy_from_analyzed(ip)
 
-      ip_checksum = checksum(ip_cpy.to_binary.bytes)
+      ip_checksum = checksum(ip_cpy.bytes_str.bytes)
 
       unless valid_checksum?(ip_checksum)
         @logger.debug("#{@devices[device_no].if_name}: Bad IP checksum")
@@ -226,9 +226,9 @@ module Router
         dest_mac.pack("C*"),
         analyzed_eth.dst_mac_address.pack("C*"),
         analyzed_eth.type.pack("C*"),
-      ).to_binary
+      ).bytes_str
 
-      ip_bin = ip.to_binary
+      ip_bin = ip.bytes_str
 
       packet = ether_bin + ip_bin + data[ether_bin.length + ip_bin.length..]
 
